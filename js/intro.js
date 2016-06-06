@@ -41,6 +41,13 @@ function getStarted() {
     window.addEventListener('keyup', fingerUp);
     window.onkeyup=fingerUp;
     window.onkeydown=fingerDown;
+    queue=new createjs.LoadQueue(true);
+    queue.loadManifest([
+        {id:"hero", src:"data/slime.json"}
+        // {id:"bgS", src:"data/bgS.json"},
+        // {id: "levels", src:"data/levels.json"}
+    ])
+    queue.load();
     var ss = new createjs.SpriteSheet(queue.getResult('hero'));
     hero = new createjs.Sprite(ss,'moving');
     stage.addChild(hero);
