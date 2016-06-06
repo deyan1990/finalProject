@@ -41,15 +41,28 @@ function getStarted() {
     window.addEventListener('keyup', fingerUp);
     window.onkeyup=fingerUp;
     window.onkeydown=fingerDown;
-    queue=new createjs.LoadQueue(true);
-    queue.loadManifest([
-        {id:"hero", src:"data/slime.json"}
-        // {id:"bgS", src:"data/bgS.json"},
-        // {id: "levels", src:"data/levels.json"}
-    ])
-    queue.load();
-    var ss = new createjs.SpriteSheet(queue.getResult('hero'));
-    hero = new createjs.Sprite(ss,'moving');
+
+    var hero1 = {
+
+        images: ["img/hero.png"],
+        frames: [
+            // x, y, width, height, imageIndex*, regX*, regY*
+            [0, 0, 86, 89],
+            [106, 0, 86, 89],
+        ],
+        animations: {
+            moving: 1,
+            notMoving:0
+        }
+    }
+    var ss = new createjs.SpriteSheet(hero1,  true);
+    hero = new createjs.Sprite(ss,'notMoving');
+    hero.width = 86;
+    hero.height = 89;
+    hero.speed = 5;
+
+    hero.x = stage.canvas.width / 2;
+    hero.y = stage.canvas.height - hero.height;
     stage.addChild(hero);
 
     addEnemies();
@@ -107,6 +120,7 @@ function moveHero() {
     }
 }
 function fingerUp(e) {
+
     if (e.keyCode === 32) {
         fire();
     }
@@ -122,11 +136,12 @@ function fingerUp(e) {
     if (e.keyCode === 40) {
         keys.dkd = false;
     }
-
+    if (!(keys.dkd || keys.lkd || keys.ukd || keys.rkd)){
+        hero.gotoAndStop("notMoving");
+    }
 }
-
 function fingerDown(e) {
-
+    hero.gotoAndStop("moving");
     if (e.keyCode === 37) {
         keys.lkd = true;
     }
@@ -207,14 +222,10 @@ function removeEnemies(e) {
 
 
 function hitTest(rect1, rect2) {
-    if (rect1.x >= rect2.x + rect2.width
-        || rect1.x + rect1.width <= rect2.x
-        || rect1.y >= rect2.y + rect2.height
-        || rect1.y + rect1.height <= rect2.y) {
-        return false;
-    }
-
-    return true;
+    return !(rect1.x >= rect2.x + rect2.width
+    || rect1.x + rect1.width <= rect2.x
+    || rect1.y >= rect2.y + rect2.height
+    || rect1.y + rect1.height <= rect2.y);
 }
 
 function levelDown() {
