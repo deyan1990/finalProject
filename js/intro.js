@@ -9,6 +9,10 @@ var lives = 3;
 var score = 0;
 var stones = [];
 var enemies = [];
+var superTimer=0;
+var bullets=[];
+var bulletDistance =55;
+var radianConstant = Math.PI/180;
 var hero;
 var keys = {
     rkd: false,
@@ -212,6 +216,80 @@ function addEnemies() {
     }
 }
 
+function hitEnemies() {
+    var e;
+    var b;
+    for(e=0;e<enemies.length;e++){
+        for(b=0;b<bullets.length;b++){
+            if(Math.abs(enemies[e].x+25 - bullets[b].x) < 10 && Math.abs(enemies[e].y+25 - bullets[b].y) < 10){
+
+                //Delete bullet
+                stage.removeChild(bullets[b]);
+                bullets.splice(b,1);
+
+                //Delete enemy
+                stage.removeChild(enemies[e]);
+                enemies.splice(e,1);
+
+                //Add some score
+                score += 1;
+                scoreText.text = "Score: " + score;
+            }
+        }
+    }
+
+
+}
+//weppon
+function fire() {
+if(superTimer < 1){
+    console.log("Super was fired!");
+    superTimer = 1800;
+
+
+    //Create a bunch of bullets at random locations
+    var n=0;
+    for(n=0;n<100;n++){
+        var b = bullets.length;
+
+        bullets[b] = new createjs.Shape();
+        bullets[b].graphics.beginFill("blue");
+        bullets[b].graphics.drawRect(0,0,5,5);
+
+        //Position the bullet
+        var tempAngle;
+        tempAngle = (Math.floor(Math.random()*360))*radianConstant;
+
+        bullets[b].x = hero.x+40 + bulletDistance * Math.cos(tempAngle);
+        bullets[b].y = hero.y+40 + bulletDistance * Math.sin(tempAngle);
+        bullets[b].origin_x=hero.x+40;
+        bullets[b].origin_y=hero.y+40;
+        bullets[b].bulletAngle = tempAngle;
+        bullets[b].bulletDistance = bulletDistance;
+        stage.addChild(bullets[b]);
+    }
+    //sound
+}
+}
+//bullets
+function moveBullets()
+{
+    var i = 0;
+    for (i = 0; i < bullets.length; i++) {
+        bullets[i].bulletDistance += 2;
+        bullets[i].x = bullets[i].origin_x + bullets[i].bulletDistance * Math.cos(bullets[i].bulletAngle);
+        bullets[i].y = bullets[i].origin_y + bullets[i].bulletDistance * Math.sin(bullets[i].bulletAngle);
+        //bullets[i].y = -bullets[i].y;
+
+        //Slower, works "squarely"
+        if (bullets[i].x > 970 || bullets[i].x < 15 || bullets[i].y > 550 || bullets[i].y < 15) {
+            stage.removeChild(bullets[i]);
+            bullets.splice(i, 1);
+        }
+    }
+
+}
+
 function removeEnemies(e) {
     scoreUp();
     stage.removeChild(e.target);
@@ -305,6 +383,9 @@ function tock(e) {
         moveEnemies();
         moveHero();
         checkCollisions();
+        moveBullets();
+        hitEnemies();
+        superTimer--;
     }
     ;
 
